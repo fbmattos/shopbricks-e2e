@@ -15,16 +15,13 @@ test('Product search functionality @critical', async ({ page }) => {
 
   // Give the page time to load and update with search results
   await page.waitForTimeout(2000);
-  const productSelectors = ['.product-item', '.product', '.shelf-item', 'a[href*="/product"]', '[data-hook*="product"]', 'article'];
-  let found = false;
-  for (const sel of productSelectors) {
-    try {
-      await expect(page.locator(sel).first()).toBeVisible({ timeout: 3000 });
-      found = true;
-      break;
-    } catch (e) {
-      // try next selector
-    }
-  }
-  if (!found) throw new Error('No product results found for the search.');
+   
+  // Wait briefly for dynamic results to render, then look for product entries
+  await page.waitForTimeout(1500);
+  // The site renders products inside a gallery/list. Prefer anchor or gallery item selectors we observed:
+  // - .c2Zj9x > li a  (gallery item link)
+  // - a.oQUvqL or .AJctir (image/link anchors)
+  // - .ETPbIy (product item container)
+  const productLocator = page.locator('.c2Zj9x > li a, .a0WjOo a.oQUvqL, .a0WjOo .AJctir, .ETPbIy, a[href*="/product"]');
+  await expect(productLocator.first()).toBeVisible({ timeout: 10000 });
 });
