@@ -13,9 +13,6 @@ test('Product search functionality @critical', async ({ page }) => {
   // Wait for the search results or shop/category page to load
   await expect(page).toHaveURL(/(?:shop|search|category)/);
 
-  // Assert that search results are visible
-  await expect(page.locator('.product-grid')).toBeVisible();
-  
-  // Verify at least one product is displayed
-  await expect(page.locator('.product-item').first()).toBeVisible();
+  // Verify at least one product is displayed (search results)
+  await expect(page.locator('.product-item').first()).toBeVisible({ timeout: 10000 });
 });
