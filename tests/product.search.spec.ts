@@ -13,8 +13,8 @@ test('Product search functionality @critical', async ({ page }) => {
   // Wait for the search results or shop/category page to load
   await expect(page).toHaveURL(/(?:shop|search|category)/);
 
-  // Ensure results are loaded and find a product selector that exists
-  await page.waitForLoadState('networkidle');
+  // Give the page time to load and update with search results
+  await page.waitForTimeout(2000);
   const productSelectors = ['.product-item', '.product', '.shelf-item', 'a[href*="/product"]', '[data-hook*="product"]', 'article'];
   let found = false;
   for (const sel of productSelectors) {
