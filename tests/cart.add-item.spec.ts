@@ -18,15 +18,25 @@ test('Add item to cart from product detail page @critical', async ({ page }) => 
   const productLocator = page.locator('.c2Zj9x > li a, .a0WjOo a.oQUvqL, .a0WjOo .AJctir, .ETPbIy, a[href*="/product"]');
   await expect(productLocator.first()).toBeVisible({ timeout: 10000 });
 
-  // Click the first product. The site may use client-side routing, so wait for a product-detail selector
+  // Click the first product. The site may open a new tab or use client-side routing.
+  const context = page.context();
+  let productPage = page;
   await productLocator.first().click();
+  // If click opened a new page/tab, capture it; otherwise continue on the same page.
+  try {
+    const newPage = await context.waitForEvent('page', { timeout: 3000 });
+    productPage = newPage;
+    await productPage.waitForLoadState('load');
+  } catch (e) {
+    // no new page — proceed with the same page
+  }
 
   // Wait for product-detail to render; try multiple possible selectors or URL patterns
   const detailSelectors = ['.product-detail', '.product-page', '[data-hook*="product-page"]', 'main article', '.ETPbIy', 'h1'];
   let detailFound = false;
   for (const sel of detailSelectors) {
     try {
-      await expect(page.locator(sel)).toBeVisible({ timeout: 7000 });
+      await expect(productPage.locator(sel)).toBeVisible({ timeout: 7000 });
       detailFound = true;
       break;
     } catch (e) {
@@ -35,12 +45,12 @@ test('Add item to cart from product detail page @critical', async ({ page }) => 
   }
   // As a fallback, ensure the URL looks like a product page
   if (!detailFound) {
-    await expect(page).toHaveURL(/(?:product|item|\/product|\/p\/)/, { timeout: 7000 });
+    await expect(productPage).toHaveURL(/(?:product|item|\/product|\/p\/)/, { timeout: 7000 });
   }
 
   // Click Add to Cart button
-  await page.getByRole('button', { name: 'Add to Cart' }).click();
+  await productPage.getByRole('button', { name: 'Add to Cart' }).click();
 
   // Assert that the cart count updates to 1
-  await expect(page.locator('.cart-count')).toHaveText('1');
+  await expect(productPage.locator('.cart-count')).toHaveText('1');
 });
