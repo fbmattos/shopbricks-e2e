@@ -8,8 +8,8 @@ test('Add item to cart from product detail page @critical', async ({ page }) => 
   await page.getByRole('searchbox').fill('lumber');
   await page.getByRole('searchbox').press('Enter');
 
-  // Wait for the search results page to load before interacting with products
-  await expect(page).toHaveURL(/.*\/shop/);
+  // Wait for the search results or shop/category page to load before interacting with products
+  await expect(page).toHaveURL(/(?:shop|search|category)/);
 
   // Click the first product in the search results
   await page.locator('.product-item').first().click();

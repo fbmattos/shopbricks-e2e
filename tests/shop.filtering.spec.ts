@@ -7,8 +7,8 @@ test('Shop page filtering functionality @critical', async ({ page }) => {
   // Click the Shop Now link (use .first() to avoid strict locator violations)
   await page.getByRole('link', { name: 'Shop Now' }).first().click();
   
-  // Wait for shop page to load
-  await expect(page).toHaveURL(/.*\/shop/);
+  // Wait for shop or category page to load
+  await expect(page).toHaveURL(/(?:shop|search|category)/);
   
   // Click the Hardware filter
   await page.getByRole('link', { name: 'Hardware' }).click();

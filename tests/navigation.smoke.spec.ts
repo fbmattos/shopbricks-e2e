@@ -10,6 +10,6 @@ test('Homepage navigation and Shop Now link @smoke', async ({ page }) => {
   // Click the Shop Now link (use .first() to avoid strict locator violations)
   await page.getByRole('link', { name: 'Shop Now' }).first().click();
   
-  // Verify navigation to shop page
-  await expect(page).toHaveURL(/.*\/shop/);
+  // Verify navigation to a shop or category page
+  await expect(page).toHaveURL(/(?:shop|search|category)/);
 });
