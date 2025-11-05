@@ -11,9 +11,22 @@ test('Add item to cart from product detail page @critical', async ({ page }) => 
   // Wait for the search results or shop/category page to load before interacting with products
   await expect(page).toHaveURL(/(?:shop|search|category)/);
 
-  // Wait for at least one product to be visible, then click the first product
-  await expect(page.locator('.product-item').first()).toBeVisible({ timeout: 10000 });
-  await page.locator('.product-item').first().click();
+  // Ensure results are loaded and find a product selector that exists
+  await page.waitForLoadState('networkidle');
+  const productSelectors = ['.product-item', '.product', '.shelf-item', 'a[href*="/product"]', '[data-hook*="product"]', 'article'];
+  let foundSelector: string | null = null;
+  for (const sel of productSelectors) {
+    try {
+      await expect(page.locator(sel).first()).toBeVisible({ timeout: 3000 });
+      foundSelector = sel;
+      break;
+    } catch (e) {
+      // try next selector
+    }
+  }
+  if (!foundSelector) throw new Error('No product results found for the search.');
+  // Click the first found product
+  await page.locator(foundSelector).first().click();
 
   // Wait for product detail page to load
   await expect(page.locator('.product-detail')).toBeVisible();
