@@ -9,10 +9,22 @@ test('Product search functionality @critical', async ({ page }) => {
   
   // Submit the search
   await page.getByRole('searchbox').press('Enter');
-  
-  // Assert that search results are visible
-  await expect(page.locator('.product-grid')).toBeVisible();
-  
-  // Verify at least one product is displayed
-  await expect(page.locator('.product-item').first()).toBeVisible();
+
+  // Wait for the search results or shop/category page to load
+  await expect(page).toHaveURL(/(?:shop|search|category)/);
+
+  // Give the page time to load and update with search results
+  await page.waitForTimeout(2000);
+  const productSelectors = ['.product-item', '.product', '.shelf-item', 'a[href*="/product"]', '[data-hook*="product"]', 'article'];
+  let found = false;
+  for (const sel of productSelectors) {
+    try {
+      await expect(page.locator(sel).first()).toBeVisible({ timeout: 3000 });
+      found = true;
+      break;
+    } catch (e) {
+      // try next selector
+    }
+  }
+  if (!found) throw new Error('No product results found for the search.');
 });

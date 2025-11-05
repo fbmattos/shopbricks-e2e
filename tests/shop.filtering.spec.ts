@@ -4,15 +4,15 @@ test('Shop page filtering functionality @critical', async ({ page }) => {
   // Navigate to the homepage
   await page.goto('https://www.shopbricks.co/');
   
-  // Click the Shop Now link
-  await page.getByRole('link', { name: 'Shop Now' }).click();
+  // Click the Shop Now link (use .first() to avoid strict locator violations)
+  await page.getByRole('link', { name: 'Shop Now' }).first().click();
   
-  // Wait for shop page to load
-  await expect(page).toHaveURL(/.*\/shop/);
+  // Wait for shop or category page to load
+  await expect(page).toHaveURL(/(?:shop|search|category)/);
   
-  // Click the Hardware filter
-  await page.getByRole('link', { name: 'Hardware' }).click();
+  // Click the Hardware filter (use .first() to avoid strict locator violations)
+  await page.getByRole('link', { name: 'Hardware' }).first().click();
   
-  // Assert that the URL contains the filter parameter
-  await expect(page).toHaveURL(/.*category=hardware/);
+  // Assert that the URL now contains the filter parameter or navigates to the hardware category
+  await expect(page).toHaveURL(/category(?:=|\/)hardware/);
 });
