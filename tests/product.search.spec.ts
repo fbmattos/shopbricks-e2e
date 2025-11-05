@@ -9,7 +9,10 @@ test('Product search functionality @critical', async ({ page }) => {
   
   // Submit the search
   await page.getByRole('searchbox').press('Enter');
-  
+
+  // Wait for the search results page to load
+  await expect(page).toHaveURL(/.*\/shop/);
+
   // Assert that search results are visible
   await expect(page.locator('.product-grid')).toBeVisible();
   
