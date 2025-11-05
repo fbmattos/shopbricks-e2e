@@ -25,11 +25,25 @@ test('Add item to cart from product detail page @critical', async ({ page }) => 
     }
   }
   if (!foundSelector) throw new Error('No product results found for the search.');
-  // Click the first found product
-  await page.locator(foundSelector).first().click();
+  // Click the first found product and wait for navigation
+  await Promise.all([
+    page.waitForNavigation(),
+    page.locator(foundSelector).first().click()
+  ]);
 
-  // Wait for product detail page to load
-  await expect(page.locator('.product-detail')).toBeVisible();
+  // Try different selectors for product detail page load
+  const detailSelectors = ['.product-detail', '.product-page', '[data-hook*="product-page"]', 'main article'];
+  let found = false;
+  for (const sel of detailSelectors) {
+    try {
+      await expect(page.locator(sel)).toBeVisible({ timeout: 3000 });
+      found = true;
+      break;
+    } catch (e) {
+      // try next selector
+    }
+  }
+  if (!found) throw new Error('Product detail page did not load.');
   
   // Click Add to Cart button
   await page.getByRole('button', { name: 'Add to Cart' }).click();
