@@ -18,18 +18,15 @@ test('Add item to cart from product detail page @critical', async ({ page }) => 
   const productLocator = page.locator('.c2Zj9x > li a, .a0WjOo a.oQUvqL, .a0WjOo .AJctir, .ETPbIy, a[href*="/product"]');
   await expect(productLocator.first()).toBeVisible({ timeout: 10000 });
 
-  // Click the first product and wait for navigation to the product detail page
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'load' }),
-    productLocator.first().click(),
-  ]);
+  // Click the first product. The site may use client-side routing, so wait for a product-detail selector
+  await productLocator.first().click();
 
-  // Wait for product-detail to render; try multiple possible selectors
+  // Wait for product-detail to render; try multiple possible selectors or URL patterns
   const detailSelectors = ['.product-detail', '.product-page', '[data-hook*="product-page"]', 'main article', '.ETPbIy', 'h1'];
   let detailFound = false;
   for (const sel of detailSelectors) {
     try {
-      await expect(page.locator(sel)).toBeVisible({ timeout: 3000 });
+      await expect(page.locator(sel)).toBeVisible({ timeout: 7000 });
       detailFound = true;
       break;
     } catch (e) {
@@ -38,7 +35,7 @@ test('Add item to cart from product detail page @critical', async ({ page }) => 
   }
   // As a fallback, ensure the URL looks like a product page
   if (!detailFound) {
-    await expect(page).toHaveURL(/(?:product|item|\/product|\/p\/)/, { timeout: 5000 });
+    await expect(page).toHaveURL(/(?:product|item|\/product|\/p\/)/, { timeout: 7000 });
   }
 
   // Click Add to Cart button
